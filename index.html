@@ -1,202 +1,136 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<title>frameSubmitter</title>
-<meta name="description" content="">
-<meta name="keywords" content="">
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-<style>
-    *{
-    	margin:5px;
-    }
-	.container{
-		width: 960px;
-		margin:0 auto;
-	}
-	.date input[type="text"]{
-		width:30px;
-		margin-left: 2px;
-	}
-</style>
-<script src="https://cdn.bootcss.com/vue/2.4.2/vue.js"></script>
-<script src="https://cdn.bootcss.com/axios/0.16.2/axios.min.js"></script>
-<link href="https://cdn.bootcss.com/bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
-<script>	
-	window.onload = function(){			
-		var t1,t2,t3,r,d,bjtime,now= new Date();	 //设置定时器
-    	new Vue({
-      		el:'.container',
-              data:{
-          	  	hide:false,
-                count:0,
-                c:0,
-                time:500,
-                api:null,
-                reapi:null,
-                url:null,
-                iframeCount:null,
-                iframearr:[],
-                date:{    //本地时间
-                  year:now.getFullYear(),
-                  mouth:now.getMonth()+1,
-                  day:now.getDate(),
-                	hour:null,
-                	minutes:null,
-                	second:null
-                },
-                nowDate:{   //定时时间
-                  year:00,
-                  mouth:00,
-                  day:00,
-                	hour:00,
-                	minutes:00,
-                	second:00          	
-                },
-                reDate:{  //倒计时
-                	day:null,
-                	hour:null,
-                	minutes:null,
-                	second:2          	
-                },
-              },
-              methods:{
-              	getnowDate(){  //获取北京时间
-                  var _this = this; 
-                  axios.get("https://bird.ioliu.cn/v2?url=http://api.m.taobao.com/rest/api3.do?api=mtop.common.getTimestamp&clk1=f52d64d90e716934523cce65aebd5a35&upsid=f52d64d90e716934523cce65aebd5a35&[Access-Control-Allow-Origin:*]").then(res => { 
-                    bjtime = new Date(Math.round(res.data.data.t));
-                    r = Math.round(res.data.data.t);
-                    console.log(r);
-                    _this.nowDate={
-                        year:bjtime.getFullYear(),
-                        mouth:bjtime.getMonth()+1,
-                        day:bjtime.getDate(),   
-                        hour:bjtime.getHours(),
-                        minutes:bjtime.getMinutes(),
-                        second:bjtime.getSeconds()                        
-                    }                    
-                  });         		
-              	},
-                refresh(){
-                  r+=250;
-                  // console.log(r);
-                  d = new Date(r);
-                  this.nowDate={
-                      year:d.getFullYear(),
-                      mouth:d.getMonth()+1,
-                      day:d.getDate(),   
-                      hour:d.getHours(),
-                      minutes:d.getMinutes(),
-                      second:d.getSeconds()                        
-                  }
-                },
-              	setTime(){     	 //距离抽奖时间	
-              		var time=this.date.year+"/"+this.date.mouth+"/"+this.date.day+" "+this.date.hour+":"+this.date.minutes+":"+this.date.second  //拼接字符串
-          				var endTime= new Date(time); //截止时间
-          				var nowTime = new Date();    //当前时间
-          				var t =endTime.getTime() - nowTime.getTime(); 
-          				this.reDate.day=Math.floor(t/1000/60/60/24); 
-          				this.reDate.hour=Math.floor(t/1000/60/60%24); 
-          				this.reDate.minutes=Math.floor(t/1000/60%60); 
-          				this.reDate.second=Math.floor(t/1000%60)+1;   					
-              	},
-              	draw(){
-      				    this.hide=true; 
-                        this.iframearr.length=this.iframeCount;
-			        	(this.api==null)?this.url=this.reapi:this.url=this.api;
-              			var _this = this;
-                  		t2=setInterval(this.setTime,250);  //倒计时刷新
-                  		t3=setInterval(function() {        //判断是否开始抽奖
-	              			if(_this.reDate.second<=0&&_this.reDate.minutes<=0&&_this.reDate.hour<=0&&_this.reDate.day<=0){
-	                          _this.loadInfo();
-              		}
-              	},250)             
-              	},
-          			loadInfo(){
-          				window.clearInterval(t3)
-          				var _this = this;
-          				t1=setInterval(function() {
-                              if(_this.reapi==null){
-          						_this.reapi=_this.api;
-          						_this.api=null      	
-                              }else{
-                              	_this.api=_this.reapi
-          						_this.reapi=null;  
-                              }
-	 	                    //次数判断
-	 	                    _this.c+=Number(_this.iframeCount);
-	 	                    console.log(_this.c);
-	                        if(_this.c>=_this.count&&_this.count!=0){
-	                            _this.stop();
-	                        }                                     		
-          				},_this.time);
-          			},
-          			stop(){
-          				this.hide=false
-          				window.clearInterval(t1);
-          				window.clearInterval(t2);
-          				window.clearInterval(t3);
-          				this.c=0;
-          				(this.api==null)?this.url=this.reapi:this.url=this.api;
-          				this.api=this.url;
-          				}
-          	    },
-              mounted(){
-              //挂载完成就刷新当前时间
-                 this.getnowDate();
-                 setInterval(this.refresh,250);
-              }	    
-          	})		
-	} 
-</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta charset="UTF-8">
+    <title>定时访问器</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/layui.css">
+    <style>
+        .logo {
+            position: absolute;
+            left: 12px;
+            top: 8px;
+        }
+
+        .logo img {
+            width: 48px;
+            height: 48px;
+        }
+
+        .layui-tab-content {
+            position: relative;
+            margin: 0 auto 35px !important;
+            max-width: 1140px;
+            padding-top: 20px;
+        }
+    </style>
 </head>
 <body>
-<div class="container row">
-    <div class="time">
-      <div>//已读取北京时间</div>
-    	<span>当前时间：</span><span>{{nowDate.year}}年</span><span>{{nowDate.mouth}}月</span><span>{{nowDate.day}}日</span><span>{{nowDate.hour}}时</span><span>{{nowDate.minutes}}分</span><span>{{nowDate.second}}秒</span>
-      <input type="button" class="btn btn-primary" value="校正时间" @click="getnowDate">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-tab-content">
+        <blockquote class="layui-elem-quote" style="text-align: center">北京时间：{{now.string}}<br>【该时间通过京东服务器接口实时获取，500ms获取一次，同时也以500ms为间隔去对比北京时间和定时时间】
+        </blockquote>
+        <div class="layui-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label">定时时间：</label>
+                <div class="layui-input-inline" style="width:480px">
+                    <input style="width: 60px;display:inline" type="text" name="year" :disabled="is_post"
+                           v-model="post_time.year" required lay-verify="required|number" placeholder="年"
+                           autocomplete="off" class="layui-input">
+                    <input style="width: 60px;display:inline" type="text" name="mouth" :disabled="is_post"
+                           v-model="post_time.month" required lay-verify="required|number" placeholder="月"
+                           autocomplete="off" class="layui-input">
+                    <input style="width: 60px;display:inline" type="text" name="day" :disabled="is_post"
+                           v-model="post_time.day" required lay-verify="required|number" placeholder="日"
+                           autocomplete="off" class="layui-input">
+                    <input style="width: 60px;display:inline" type="text" name="hour" :disabled="is_post"
+                           v-model="post_time.hour" required lay-verify="required|number" placeholder="时"
+                           autocomplete="off" class="layui-input">
+                    <input style="width: 60px;display:inline" type="text" name="minutes" :disabled="is_post"
+                           v-model="post_time.minutes" required lay-verify="required|number" placeholder="分"
+                           autocomplete="off" class="layui-input">
+                    <input style="width: 60px;display:inline" type="text" name="second" :disabled="is_post"
+                           v-model="post_time.second" required lay-verify="required|number" placeholder="秒"
+                           autocomplete="off" class="layui-input">
+                    <input style="width: 60px;display:inline" type="text" name="millisecond" :disabled="is_post"
+                           v-model="post_time.millisecond" required lay-verify="required|number" placeholder="毫秒"
+                           autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-form-mid layui-word-aux">时间格式：2017-01-07 00-00-00-000</div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">刷新间隔：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="title" :disabled="is_post" v-model="post_span" required
+                           lay-verify="required|number" value="500" autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-form-mid layui-word-aux">提交的间隔时间，默认：500(ms)</div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">窗口数目：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="title" :disabled="is_post" v-model="post_window_count" required
+                           lay-verify="required|number" value="1" autocomplete="off" class="layui-input" disabled>
+                </div>
+                <div class="layui-form-mid layui-word-aux">开启的窗口数目 默认：1</div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">提交次数：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="title" :disabled="is_post" v-model="post_count" required value="0"
+                           lay-verify="required|number"
+                           autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-form-mid layui-word-aux">指所有窗口的提交次数的总数 默认：0【无限次】</div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">提交模式：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="title" :disabled="is_post" v-model="post_mode" required
+                           lay-verify="required|number" value="1" autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-form-mid layui-word-aux">1:iFrame 2:GET【一般iFrame满足大部分需求】</div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">提交地址：</label>
+                <!--<div class="layui-input-inline">-->
+                <!--<input type="text" name="title" :disabled="is_post" v-show="!is_post" v-model="post_url" required-->
+                <!--lay-verify="required|url" autocomplete="off" class="layui-input">-->
+                <!--<input type="text" name="title" disabled v-model="post_url_temp" v-show="is_post" autocomplete="off"-->
+                <!--class="layui-input">-->
+                <!--</div>-->
+                <!--<div class="layui-form-mid layui-word-aux">提交地址，举个栗子：【http://m.baidu.com/】</div>-->
+                <div class="layui-input-block">
+                    <textarea name="desc" placeholder="请输入内容" class="layui-textarea" v-model="post_url" required></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block" v-if="!is_post">
+                    <button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="post">定时提交</button>
+                </div>
+                <div class="layui-input-block" v-else>
+                    <button type="button" class="layui-btn layui-btn-warm" lay-submit lay-filter="post">取消提交</button>
+                </div>
+            </div>
+        </div>
+        <hr class="layui-bg-blue">
+        <blockquote class="layui-elem-quote" v-show="is_post">
+            请根据下面窗口返回的显示内容判断提交的链接是否正确有效！
+            <br>已经开启定时,距离自动提交时间还有：<span>{{count_down.day}}天</span> <span>{{count_down.hour}}时</span> <span>{{count_down.minutes}}分</span>
+            <span>{{count_down.second}}秒</span><span>{{count_down.millisecond}}毫秒</span>
+            <br>首次提交时间：{{first_commit_time}}
+            <br>已提交次数：{{has_post_count}}
+        </blockquote>
+        <iframe style="width:370px; height:200px;" :src="post_url" v-show="is_post&&post_mode==1" frameborder="1"
+                v-for="item in post_window_arr"></iframe>
+        <div class="resContent">
+            <p class="resStr"  v-show="is_post&&post_mode!=1">{{post_res}}</p>
+        </div>
     </div>
-    <div class="date">
-        <label>定时时间：</label>
-        <input type="text" v-model="date.year" :disabled="hide"/>年
-		<input type="text" v-model="date.mouth" :disabled="hide"/>月
-		<input type="text" v-model="date.day" :disabled="hide"/>日
-		<input type="text" v-model="date.hour" :disabled="hide"/>时
-		<input type="text" v-model="date.minutes" :disabled="hide"/>分
-		<input type="text" v-model="date.second" :disabled="hide"/>秒
-		//时间格式：2017-01-07 00-00-00
-    </div>
-	<div>
-		<label for="time">刷新间隔：</label>
-		<input type="text" id="time" v-model="time" :disabled="hide">//单位：毫秒
-	</div>
-	<div>
-		<label for="api">提交地址：</label>
-		<input type="text" id="api" v-model="api"  v-show="!hide" :disabled="hide">
-		<input type="text" v-model="url" v-show="hide" disabled>
-	</div>
-	<div>
-		<label for="iframe">窗口数目：</label>
-		<input type="text" id="iframe" v-model="iframeCount" :disabled="hide">//建议数量：2
-	</div>
-	<div>
-		<label for="iframe">提交次数：</label>
-		<input type="text" id="iframe" v-model="count" :disabled="hide">//指所有窗口的提交次数总量，0为无限
-	</div>
-	<div>
-	<input type="button" class="btn btn-primary" value="开始提交" v-show="!hide" @click="draw">
-	<input type="button" class="btn btn-primary" value="停止提交" v-show="hide" @click="stop">
-	</div>
-	<hr>
-	<p v-show="hide">请根据该窗口返回的显示内容判断链接是否正确有效</p>
-	<div v-show="hide">
-    	<h4>已经开启定时,距离自动提交时间还有：</h4>
-    	<span>{{reDate.day}}天</span><span>{{reDate.hour}}时</span><span>{{reDate.minutes}}分</span><span>{{reDate.second}}秒</span>
-    	<h5>目前已请求{{c}}次</h5>
-    </div>
-	<iframe :src="api" v-show="api" frameborder="1" v-for="item in iframearr"></iframe>
 </div>
+<script type="text/javascript" src="js/vue.min.js"></script>
+<script type="text/javascript" src="js/layui.all.js"></script>
+<script type="text/javascript" src="js/submitter.js"></script>
 </body>
 </html>
